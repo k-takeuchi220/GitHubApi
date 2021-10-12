@@ -3,6 +3,7 @@
 Twitterのように片思い、片思われフォローを調べたり、片思いフォロー一括解除のようなことができたらな、と思い作成しました。
 
 参考： https://docs.github.com/ja/rest/reference/users
+トークン生成： https://github.com/settings/tokens
 
 example
 ```

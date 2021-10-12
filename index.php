@@ -7,7 +7,7 @@ var_dump($followings);
 class GitAPi
 {
     // settings
-    public const TOKEN = '';
+    public const TOKEN = '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';
     public const TARGET_USER = 'k-takeuchi220';
 
     protected $urls;

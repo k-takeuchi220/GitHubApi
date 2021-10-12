@@ -1,33 +1,52 @@
 <?php
 
-$gitApi = new GitAPi();
-$followings = $gitApi->getOnlyMyselfFollowings();
+$token = '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';
+$userId = 'k-takeuchi220';
+$gitHubApi = new GitHubAPi($token, $userId);
+$followings = $gitHubApi->getFollowers();
 var_dump($followings);
+// foreach ($followings as $following) {
+//     $gitApi->unfollow($following);
+// }
 
-class GitAPi
+class GitHubAPi
 {
-    // settings
-    public const TOKEN = '';
-    public const TARGET_USER = 'k-takeuchi220';
+    protected $token;
+    protected $userId;
 
-    protected $urls;
     protected const GIT_API_URL = 'https://api.github.com/';
-    protected const FOLLOWERS_URL = 0;
-    protected const FOLLOWING_URL = 1;
+    protected const FOLLOWERS_URL_FORMAT = self::GIT_API_URL."users/%s/followers";
+    protected const FOLLOWING_URL_FORMAT = self::GIT_API_URL."users/%s/following";
+    protected const FOLLOW_URL_FORMAT = self::GIT_API_URL."user/following/%s";
 
-    public function __construct()
+    public function __construct(string $token, string $userId)
     {
-        $user = self::TARGET_USER;
-        $this->urls = [
-            self::FOLLOWERS_URL => self::GIT_API_URL."users/${user}/followers",
-            self::FOLLOWING_URL => self::GIT_API_URL."users/${user}/following",
-        ];
+        $this->token = $token;
+        $this->userId = $userId;
+    }
+
+    /**
+     * 指定ユーザのフォロー
+     */
+    public function follow(string $userId): void
+    {
+        $url = sprintf(self::FOLLOW_URL_FORMAT, $userId);
+        $this->curl($url, $this->token, 'PUT');
+    }
+
+    /**
+     * 指定ユーザのフォロー解除
+     */
+    public function unfollow(string $userId): void
+    {
+        $url = sprintf(self::FOLLOW_URL_FORMAT, $userId);
+        $this->curl($url, $this->token, 'DELETE');
     }
 
     /**
      * 片思いフォロー一覧取得
      */
-    public function getOnlyMyselfFollowings(): array
+    public function getUnrequitedFollowings(): array
     {
         $followings = $this->getFollowings();
         $followers = $this->getFollowers();
@@ -38,7 +57,7 @@ class GitAPi
     /**
      * 片思われフォロー一覧取得
      */
-    public function getOnlyOtherFollowers(): array
+    public function getUnrequitedFollowers(): array
     {
         $followings = $this->getFollowings();
         $followers = $this->getFollowers();
@@ -49,34 +68,34 @@ class GitAPi
     /**
      * フォロワー一覧取得
      */
-    public function getFollowers(): array
+    public function getFollowers(int $page = 1, int $perPage = 100): array
     {
-        $url = $this->urls[self::FOLLOWERS_URL];
-        $datas = $this->curl($url, self::TOKEN);
+        $userId = $this->userId;
+        $url = sprintf(self::FOLLOWERS_URL_FORMAT, $userId);
 
-        $followings = [];
-        foreach ($datas as $data) {
-            $followings[] = $data['login'];
-        }
-        return $followings;
+        $query = ['page' => $page, 'per_page' => $perPage];
+        $datas = $this->curl($url, $this->token, 'GET', $query);
+
+        $followers = array_column($datas, 'login');
+        return $followers;
     }
 
     /**
      * フォロー一覧取得
      */
-    public function getFollowings(): array
+    public function getFollowings(int $page = 1, int $perPage = 100): array
     {
-        $url = $this->urls[self::FOLLOWING_URL];
-        $datas = $this->curl($url, self::TOKEN);
+        $userId = $this->userId;
+        $url = sprintf(self::FOLLOWING_URL_FORMAT, $userId);
 
-        $followings = [];
-        foreach ($datas as $data) {
-            $followings[] = $data['login'];
-        }
+        $query = ['page' => $page, 'per_page' => $perPage];
+        $datas = $this->curl($url, $this->token, 'GET', $query);
+
+        $followings = array_column($datas, 'login');
         return $followings;
     }
 
-    protected function curl(string $url, string $token, string $type='GET'): array
+    protected function curl(string $url, string $token, string $type, array $query = []): array
     {
         $options = [
             'http' => [
@@ -89,11 +108,15 @@ class GitAPi
             ],
         ];
 
+        if (!empty($query)) {
+            $url .= '?'.http_build_query($query);
+        }
+
         $context = stream_context_create($options);
         $contents = file_get_contents($url, false, $context);
     
         $datas = json_decode($contents, true);
-        return $datas;
+        return $datas ?? [];
     }
 }
 

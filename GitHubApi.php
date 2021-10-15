@@ -16,7 +16,7 @@ class GitHubApi
     protected const FOLLOWERS_URL_FORMAT = self::GIT_API_URL."users/%s/followers";
     protected const FOLLOWING_URL_FORMAT = self::GIT_API_URL."users/%s/following";
     protected const FOLLOW_URL_FORMAT = self::GIT_API_URL."user/following/%s";
-    
+
     // 使えないらしい
     // protected const CHECK_FOLLOW_URL_FORMAT = self::GIT_API_URL."user/%s/following/%s";
 
@@ -125,8 +125,8 @@ class GitHubApi
     public function getFollowingsByUserId(string $userId, int $page = 1, int $perPage = 100): array
     {
         $pageKey = $this->makePageKey($page, $perPage);
-        if (!empty($_cacheFollowings) && isset($_cacheFollowings[$userId]) && isset($_cacheFollowings[$userId][$pageKey])) {
-            return $_cacheFollowings[$userId];
+        if (!empty($this->_cacheFollowings) && isset($this->_cacheFollowings[$userId]) && isset($this->_cacheFollowings[$userId][$pageKey])) {
+            return $this->_cacheFollowings[$userId];
         }
         $url = sprintf(self::FOLLOWING_URL_FORMAT, $userId);
         $query = ['page' => $page, 'per_page' => $perPage];
@@ -143,8 +143,8 @@ class GitHubApi
     public function getFollowersByUserId(string $userId, int $page = 1, int $perPage = 100): array
     {
         $pageKey = $this->makePageKey($page, $perPage);
-        if (!empty($_cacheFollowers) && isset($_cacheFollowers[$userId]) && isset($_cacheFollowers[$userId][$pageKey])) {
-            return $_cacheFollowers[$userId][$pageKey];
+        if (!empty($this->_cacheFollowers) && isset($this->_cacheFollowers[$userId]) && isset($this->_cacheFollowers[$userId][$pageKey])) {
+            return $this->_cacheFollowers[$userId][$pageKey];
         }
         $url = sprintf(self::FOLLOWERS_URL_FORMAT, $userId);
         $query = ['page' => $page, 'per_page' => $perPage];

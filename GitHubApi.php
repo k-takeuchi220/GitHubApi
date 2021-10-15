@@ -125,7 +125,7 @@ class GitHubApi
     public function getFollowingsByUserId(string $userId, int $page = 1, int $perPage = 100): array
     {
         $pageKey = $this->makePageKey($page, $perPage);
-        if (!empty($this->_cacheFollowings) && isset($this->_cacheFollowings[$userId]) && isset($this->_cacheFollowings[$userId][$pageKey])) {
+        if (isset($this->_cacheFollowings[$userId][$pageKey])) {
             return $this->_cacheFollowings[$userId];
         }
         $url = sprintf(self::FOLLOWING_URL_FORMAT, $userId);
@@ -143,7 +143,7 @@ class GitHubApi
     public function getFollowersByUserId(string $userId, int $page = 1, int $perPage = 100): array
     {
         $pageKey = $this->makePageKey($page, $perPage);
-        if (!empty($this->_cacheFollowers) && isset($this->_cacheFollowers[$userId]) && isset($this->_cacheFollowers[$userId][$pageKey])) {
+        if (isset($this->_cacheFollowers[$userId][$pageKey])) {
             return $this->_cacheFollowers[$userId][$pageKey];
         }
         $url = sprintf(self::FOLLOWERS_URL_FORMAT, $userId);

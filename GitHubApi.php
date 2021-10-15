@@ -165,10 +165,17 @@ class GitHubApi
         $perPage = self::MAX_PER_PAGE;
         for ($page = 1; $page <= $maxPage; ++$page) {
             $followingsPage = $this->getfollowingsByUserId($userId, $page, $perPage);
+            
+            // ページが存在しない
             if (empty($followingsPage)) {
                 break;
             }
             $followings = array_merge($followings, $followingsPage);
+
+            // 最終ページ
+            if ($perPage > count($followings)) {
+                break;
+            }
         }
 
         return $followings;
@@ -184,10 +191,17 @@ class GitHubApi
         $perPage = self::MAX_PER_PAGE;
         for ($page = 1; $page <= $maxPage; ++$page) {
             $followersPage = $this->getFollowersByUserId($userId, $page, $perPage);
+
+            // ページが存在しない
             if (empty($followersPage)) {
                 break;
             }
             $followers = array_merge($followers, $followersPage);
+
+            // 最終ページ
+            if ($perPage > count($followersPage)) {
+                break;
+            }
         }
 
         return $followers;

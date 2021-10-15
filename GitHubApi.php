@@ -16,10 +16,10 @@ class GitHubApi
     protected const FOLLOWERS_URL_FORMAT = self::GIT_API_URL."users/%s/followers";
     protected const FOLLOWING_URL_FORMAT = self::GIT_API_URL."users/%s/following";
     protected const FOLLOW_URL_FORMAT = self::GIT_API_URL."user/following/%s";
-
+    
     // 使えないらしい
     // protected const CHECK_FOLLOW_URL_FORMAT = self::GIT_API_URL."user/%s/following/%s";
-    
+
     protected const MAX_PER_PAGE = 100;
     
     public function __construct(string $token, string $userId)
@@ -51,28 +51,6 @@ class GitHubApi
     {
         $url = sprintf(self::FOLLOW_URL_FORMAT, $userId);
         $this->curl($url, $this->token, 'DELETE');
-    }
-
-    /**
-     * 片思いフォロー一覧取得
-     */
-    public function getUnrequitedFollowings(string $userId, int $maxPage = 10): array
-    {
-        $followings = $this->getAllFollowingsByUserId($userId, $maxPage);
-        $followers = $this->getAllFollowersByUserId($userId, $maxPage);
-
-        return array_diff($followings, $followers);
-    }
-
-    /**
-     * 片思われフォロー一覧取得
-     */
-    public function getUnrequitedFollowers(string $userId, int $maxPage = 10): array
-    {
-        $followings = $this->getAllFollowingsByUserId($userId, $maxPage);
-        $followers = $this->getAllFollowersByUserId($userId, $maxPage);
-
-        return array_diff($followers, $followings);
     }
 
     /**
@@ -115,6 +93,28 @@ class GitHubApi
         $userId = $this->getUserId();
         $followers = $this->getAllFollowersByUserId($userId, $maxPage);
         return $followers;
+    }
+
+    /**
+     * 片思いフォロー一覧取得
+     */
+    public function getUnrequitedFollowings(int $maxPage = 10): array
+    {
+        $userId = $this->getUserId();
+        $unrequitedFollowings = $this->getUnrequitedFollowingsByUserId($userId, $maxPage);
+
+        return $unrequitedFollowings;
+    }
+
+    /**
+     * 片思われフォロー一覧取得
+     */
+    public function getUnrequitedFollowers(int $maxPage = 10): array
+    {
+        $userId = $this->getUserId();
+        $unrequitedFollowers = $this->getUnrequitedFollowersByUserId($userId, $maxPage);
+
+        return $unrequitedFollowers;
     }
 
     //======================================== 共通処理 ========================================//
@@ -191,6 +191,28 @@ class GitHubApi
         }
 
         return $followers;
+    }
+
+    /**
+     * 該当ユーザの片思いフォロー一覧取得
+     */
+    public function getUnrequitedFollowingsByUserId(string $userId, int $maxPage = 10): array
+    {
+        $followings = $this->getAllFollowingsByUserId($userId, $maxPage);
+        $followers = $this->getAllFollowersByUserId($userId, $maxPage);
+
+        return array_diff($followings, $followers);
+    }
+
+    /**
+     * 該当ユーザの片思われフォロー一覧取得
+     */
+    public function getUnrequitedFollowersByUserId(string $userId, int $maxPage = 10): array
+    {
+        $followings = $this->getAllFollowingsByUserId($userId, $maxPage);
+        $followers = $this->getAllFollowersByUserId($userId, $maxPage);
+
+        return array_diff($followers, $followings);
     }
 
     protected function makePageKey(int $page, int $perPage): string

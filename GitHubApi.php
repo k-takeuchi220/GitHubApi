@@ -126,7 +126,7 @@ class GitHubApi
     {
         $pageKey = $this->makePageKey($page, $perPage);
         if (isset($this->_cacheFollowings[$userId][$pageKey])) {
-            return $this->_cacheFollowings[$userId];
+            return $this->_cacheFollowings[$userId][$pageKey];
         }
         $url = sprintf(self::FOLLOWING_URL_FORMAT, $userId);
         $query = ['page' => $page, 'per_page' => $perPage];
